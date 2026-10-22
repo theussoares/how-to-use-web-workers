@@ -1,85 +1,54 @@
-# Web Workers Demo - YouTube Tutorial
+# Web Workers in Nuxt 3
 
-Demonstração simples de Web Workers em Nuxt 3 com TypeScript para mostrar a comunicação básica entre main thread e workers.
+A small demo of how to use **Web Workers** in Nuxt 3 + TypeScript to keep the UI responsive while doing heavy work off the main thread.
 
-## 🎯 Objetivo
+## What it shows
 
-Mostrar como usar Web Workers para:
-1. **API Worker**: Fazer requisições HTTP sem bloquear a UI
-2. **CPU Worker**: Executar cálculos pesados em background
+1. **API worker**: makes HTTP requests without blocking the UI.
+2. **CPU worker**: runs a heavy computation (Fibonacci) in the background.
 
-## 🚀 Como Executar
+The page keeps an animation running while the workers process, so you can see the main thread staying free.
+
+## Run it
 
 ```bash
-# Instalar dependências
 npm install
-
-# Executar em modo desenvolvimento
-npm run dev
+npm run dev     # http://localhost:3000
 ```
 
-Acesse: http://localhost:3000
-
-## 📁 Estrutura do Projeto
+## Project structure
 
 ```
-├── app/
-│   └── pages/
-│       └── index.vue           # Página principal com demos
-├── public/
-│   └── workers/
-│       ├── api-worker.js       # Worker para requisições HTTP
-│       └── cpu-worker.js       # Worker para cálculos pesados
+├── app/pages/index.vue          # demo page: creates workers and handles messages
+├── public/workers/
+│   ├── api-worker.js            # fetch() inside a worker
+│   └── cpu-worker.js            # heavy computation inside a worker
 └── nuxt.config.ts
 ```
 
-## 🔄 Como Funciona
+## How it works
 
-### API Worker
-```javascript
-// Main Thread → Worker
-worker.postMessage({ url: 'https://api.example.com/data' })
+Main thread and worker communicate only through messages.
 
-// Worker → Main Thread  
-self.postMessage({ success: true, data: responseData })
+```js
+// API worker
+worker.postMessage({ url: 'https://api.example.com/data' })   // main -> worker
+self.postMessage({ success: true, data: responseData })        // worker -> main
+
+// CPU worker
+worker.postMessage({ number: 35 })                             // main -> worker
+self.postMessage({ success: true, result: fibonacciResult })   // worker -> main
 ```
 
-### CPU Worker
-```javascript
-// Main Thread → Worker
-worker.postMessage({ number: 35 })
+Workers can fail, so both report errors back to the main thread instead of crashing silently.
 
-// Worker → Main Thread
-self.postMessage({ success: true, result: fibonacciResult })
-```
+## Key concepts
 
-## 🎬 Para o Vídeo
+- Main thread vs. worker thread
+- `postMessage()` / `onmessage`
+- Transferable objects
+- When to use workers, and their limitations (no DOM access)
 
-### Pontos a demonstrar:
+## Tech
 
-1. **Interface Responsiva**: A animação continua fluida durante processamentos
-2. **Comunicação Simples**: postMessage() nos dois sentidos
-3. **Tratamento de Erros**: Workers podem falhar e reportar erros
-4. **Casos de Uso**: Quando usar cada tipo de worker
-
-### Código para mostrar:
-
-1. **index.vue**: Como criar workers e comunicar
-2. **api-worker.js**: Worker fazendo fetch()
-3. **cpu-worker.js**: Worker fazendo cálculo pesado
-4. **DevTools**: Console mostrando mensagens dos workers
-
-## 🛠️ Tecnologias
-
-- **Nuxt 3**: Framework Vue.js
-- **TypeScript**: Tipagem estática
-- **Tailwind CSS**: Estilização
-- **Web Workers**: Processamento em background
-
-## 📝 Conceitos Explicados
-
-- **Main Thread vs Worker Thread**
-- **postMessage() / onmessage**
-- **Transferable Objects**
-- **Quando usar Workers**
-- **Limitações dos Workers**
+Nuxt 3, TypeScript, Tailwind CSS, Web Workers API.
